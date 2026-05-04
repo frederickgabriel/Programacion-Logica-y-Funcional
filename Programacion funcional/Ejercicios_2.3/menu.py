@@ -1,3 +1,4 @@
+# Por frederick Gabriel Aguilar Puc 
 # =============================================================================
 #  ACTIVIDAD PRÁCTICA INTEGRADORA
 #  Sistema de pedidos: Comedor Escolar
@@ -152,27 +153,6 @@ def tomar_orden(preparar_alimento, cantidad, precio_unitario):
 
     # d) Devuelve los tres valores
     return porciones, precios, promocion
-
-
-
-
-
-# # ── DESAFÍO EXTRA 2 — Función de orden superior que devuelve funciones ───────
-
-# def elegir_producto(nombre):
-#     if nombre == "pizza":
-#         return preparar_pizza       # devuelve la función, sin ejecutarla
-#     elif nombre == "agua":
-#         return preparar_agua
-#     elif nombre == "tamal":
-#         return preparar_tamal
-#     else:
-#         return None
-
-
-
-
-
 
 
 # ── PASO 4 ──────────────────────────────────────────────────────────────────
