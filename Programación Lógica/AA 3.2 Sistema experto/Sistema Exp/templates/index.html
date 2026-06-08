@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema Experto Vocacional | TecNM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}" />
+</head>
+<body>
+    <div class="bg-animated"></div>
+
+    <div class="card fade-in">
+        
+        <div id="welcome-section" class="fade-in">
+            <div class="welcome-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <h1 class="welcome-title">Descubre tu Camino Profesional</h1>
+            <p class="welcome-subtitle">
+                Bienvenido al <b>Sistema Experto Vocacional</b> del TecNM.<br><br>
+                Nuestro motor de Inteligencia Artificial desarrollado en Prolog analizará tus respuestas utilizando reglas de lógica avanzada para recomendarte la carrera que mejor se adapte a tus habilidades e intereses.
+            </p>
+            <button class="btn btn-primary start-btn pulse-anim" onclick="startQuiz()">Comenzar Diagnóstico →</button>
+        </div>
+
+        <div id="quiz-section" style="display:none;">
+            <div class="header">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <div class="header-text">
+                    <h1>Inteligencia Artificial Vocacional</h1>
+                    <p>Motor de Inferencia Prolog - TecNM</p>
+                </div>
+            </div>
+
+            <div class="progress-wrap">
+                <div class="progress-meta">
+                    <span id="step-label">PREGUNTA 1 DE 6</span>
+                    <span id="pct-label" class="pulse-text">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="pbar" style="width:0%"></div>
+                </div>
+            </div>
+
+            <div class="question-text" id="q-text"></div>
+            <div class="options" id="options"></div>
+
+            <div class="nav">
+                <button class="btn" id="btn-back" onclick="goBack()" disabled>← Regresar</button>
+                <button class="btn btn-primary" id="btn-next" onclick="goNext()" disabled>Continuar →</button>
+            </div>
+        </div>
+
+        <div id="loading-section" style="display:none;">
+            <div class="ai-loader">
+                <div class="core"></div>
+                <div class="ring"></div>
+            </div>
+            <p class="loading-text">Conectando con Motor Prolog...</p>
+            <p class="loading-subtext">Aplicando reglas de inferencia</p>
+        </div>
+
+        <div id="results-section" style="display:none;">
+            <div class="header">
+                <div class="logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+                <div class="header-text">
+                    <p class="results-title">Diagnóstico Completado</p>
+                    <p class="results-sub">Resultados del análisis experto</p>
+                </div>
+            </div>
+            <div class="winner-card pop-in" id="winner-card"></div>
+            <div class="ranking-title">PUNTAJES ENCONTRADOS</div>
+            <div id="ranking-list" class="stagger-list"></div>
+            <button class="btn btn-full hover-glow" onclick="location.reload()">← Realizar nueva consulta</button>
+        </div>
+    </div>
+
+    <script>
+        const PREGUNTAS = [
+            { id: 1, texto: "¿Cuál es tu habilidad más destacada?", categoria: "habilidad", opciones: [
+                { clave: "a", texto: "Razonamiento lógico y matemático", valor: "logica_matematica" },
+                { clave: "b", texto: "Comunicación y relaciones sociales", valor: "comunicacion" },
+                { clave: "c", texto: "Liderazgo y toma de decisiones", valor: "liderazgo" },
+                { clave: "d", texto: "Trabajo en laboratorio / ciencias", valor: "laboratorio" },
+            ]},
+            { id: 2, texto: "¿Qué habilidad describes mejor en ti?", categoria: "habilidad", opciones: [
+                { clave: "a", texto: "Programar o usar herramientas digitales", valor: "programacion" },
+                { clave: "b", texto: "Organizar tareas y proyectos", valor: "organizacion" },
+                { clave: "c", texto: "Empatía y trabajo social", valor: "empatia" },
+                { clave: "d", texto: "Resolver problemas técnicos o de diseño", valor: "resolucion_problemas" },
+            ]},
+            { id: 3, texto: "¿Cómo prefieres trabajar?", categoria: "habilidad", opciones: [
+                { clave: "a", texto: "En equipo colaborativo", valor: "trabajo_en_equipo" },
+                { clave: "b", texto: "Analizando datos o estadísticas", valor: "estadistica" },
+                { clave: "c", texto: "Con pensamiento crítico", valor: "pensamiento_critico" },
+                { clave: "d", texto: "En contacto con ciencias naturales", valor: "ciencias_naturales" },
+            ]},
+            { id: 4, texto: "¿Qué área te apasiona más?", categoria: "interes", opciones: [
+                { clave: "a", texto: "Tecnología e inteligencia artificial", valor: "tecnologia" },
+                { clave: "b", texto: "Negocios y emprendimiento", valor: "negocios" },
+                { clave: "c", texto: "Manufactura, logística o calidad", valor: "manufactura" },
+                { clave: "d", texto: "Voluntariado y desarrollo social", valor: "voluntariado" },
+            ]},
+            { id: 5, texto: "¿Qué actividad disfrutas más en tu tiempo libre?", categoria: "interes", opciones: [
+                { clave: "a", texto: "Cocinar o estudiar nutrición/salud", valor: "cocina" },
+                { clave: "b", texto: "Investigar o leer sobre ciencias", valor: "investigacion" },
+                { clave: "c", texto: "Administrar o planificar eventos", valor: "organizacion_eventos" },
+                { clave: "d", texto: "Explorar el medio ambiente o la cultura", valor: "medio_ambiente" },
+            ]},
+            { id: 6, texto: "¿Cuál es tu meta profesional?", categoria: "interes", opciones: [
+                { clave: "a", texto: "Crear software o videojuegos", valor: "software" },
+                { clave: "b", texto: "Gestionar finanzas o empresas", valor: "finanzas" },
+                { clave: "c", texto: "Innovar en procesos industriales", valor: "automatizacion" },
+                { clave: "d", texto: "Emprender mi propio negocio", valor: "emprendimiento" },
+            ]},
+        ];
+
+        let current = 0;
+        const respuestas = new Array(6).fill(null);
+
+        // Nueva función para iniciar el Quiz
+        function startQuiz() {
+            document.getElementById('welcome-section').style.display = 'none';
+            const quizSec = document.getElementById('quiz-section');
+            quizSec.style.display = 'block';
+            quizSec.classList.add('fade-in');
+        }
+
+        function renderPregunta() {
+            const p = PREGUNTAS[current];
+            const pct = Math.round((current / 6) * 100);
+            
+            const qText = document.getElementById('q-text');
+            const opts = document.getElementById('options');
+            qText.style.opacity = 0;
+            opts.style.opacity = 0;
+
+            setTimeout(() => {
+                document.getElementById('step-label').textContent = `PREGUNTA ${current + 1} DE 6`;
+                document.getElementById('pct-label').textContent = `${pct}%`;
+                document.getElementById('pbar').style.width = `${pct}%`;
+                qText.textContent = p.texto;
+
+                const sel = respuestas[current];
+                const esUltima = current === 5;
+
+                opts.innerHTML = p.opciones.map((o, idx) => `
+                    <button class="opt ${sel === o.valor ? 'selected' : ''}" style="animation-delay: ${idx * 0.1}s"
+                            onclick="seleccionar('${o.valor}', this)">
+                      <span class="opt-key">${o.clave.toUpperCase()}</span>
+                      <span class="opt-text">${o.texto}</span>
+                      <div class="opt-bg"></div>
+                    </button>`).join('');
+
+                document.getElementById('btn-back').disabled = current === 0;
+                document.getElementById('btn-next').disabled = sel === null;
+                document.getElementById('btn-next').textContent = esUltima ? 'Analizar Perfil →' : 'Continuar →';
+
+                qText.style.opacity = 1;
+                opts.style.opacity = 1;
+            }, 200);
+        }
+
+        function seleccionar(valor, btn) {
+            respuestas[current] = valor;
+            document.querySelectorAll('.opt').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('btn-next').disabled = false;
+        }
+
+        function goNext() {
+            if (respuestas[current] === null) return;
+            if (current < 5) { current++; renderPregunta(); }
+            else procesarBackend();
+        }
+
+        function goBack() {
+            if (current > 0) { current--; renderPregunta(); }
+        }
+
+        async function procesarBackend() {
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('loading-section').style.display = 'block';
+
+            const habilidades = PREGUNTAS.filter(p => p.categoria === 'habilidad').map((p, i) => respuestas[i]);
+            const intereses = PREGUNTAS.filter(p => p.categoria === 'interes').map((p, i) => respuestas[i + 3]);
+
+            try {
+                const response = await fetch('/api/inferir', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ habilidades, intereses })
+                });
+                const ranking = await response.json();
+                
+                setTimeout(() => mostrarResultados(ranking), 1500);
+            } catch (error) {
+                alert("Error de conexión con el motor Prolog.");
+                console.error(error);
+            }
+        }
+
+        function mostrarResultados(ranking) {
+            document.getElementById('loading-section').style.display = 'none';
+            document.getElementById('results-section').style.display = 'block';
+
+            const top = ranking[0];
+            const maxScore = top ? top.puntaje : 1;
+
+            if (top) {
+                document.getElementById('winner-card').innerHTML = `
+                    <div class="winner-badge">⭐ Alta Compatibilidad</div>
+                    <div class="winner-name">${top.nombre}</div>
+                    <div class="winner-desc">${top.desc}</div>
+                    <span class="score-pill">Afinidad: ${Math.round((top.puntaje/maxScore)*100)}%</span>
+                `;
+            } else {
+                document.getElementById('winner-card').innerHTML = `<div class="winner-name">No se encontró compatibilidad exacta</div>`;
+            }
+
+            document.getElementById('ranking-list').innerHTML = ranking.map((r, i) => `
+                <div class="rank-item" style="animation-delay: ${0.5 + (i*0.1)}s">
+                  <div class="rank-num">${i + 1}</div>
+                  <div class="rank-name">${r.nombre}</div>
+                  <div class="rank-bar-wrap">
+                    <div class="rank-bar" style="width: 0%;" data-target="${Math.round((r.puntaje / maxScore) * 100)}%"></div>
+                  </div>
+                  <div class="rank-score">${Math.round((r.puntaje / maxScore) * 100)}%</div>
+                </div>`).join('');
+
+            setTimeout(() => {
+                document.querySelectorAll('.rank-bar').forEach(bar => {
+                    bar.style.width = bar.getAttribute('data-target');
+                });
+            }, 100);
+        }
+
+        renderPregunta();
+    </script>
+</body>
+</html>

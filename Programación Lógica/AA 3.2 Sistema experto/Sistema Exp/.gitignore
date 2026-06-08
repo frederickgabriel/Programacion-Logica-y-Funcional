@@ -1,0 +1,18 @@
+# Entornos virtuales (¡Lo más importante!)
+.venv/
+venv/
+env/
+
+# Archivos caché de Python (Archivos basura que genera Python al ejecutarse)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Variables de entorno (Si llegas a usar contraseñas en el futuro)
+.env
+
+# Archivos de sistema operativo (Basura de Windows o Mac)
+Thumbs.db
+.DS_Store
+
